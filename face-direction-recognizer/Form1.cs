@@ -1,4 +1,4 @@
-﻿using System.Drawing;
+piaudgfhf;iasjdfao;izuf`di cjqpw﻿using System.Drawing;
 using System.Windows.Forms;
 using AForge.Video.DirectShow;
 using AForge.Video;
