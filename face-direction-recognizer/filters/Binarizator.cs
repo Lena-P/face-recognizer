@@ -14,13 +14,13 @@ namespace face_direction_recognizer
 
             int threshold = CountThreshold(gistogramm);
 
-            for (int i = 0; i < bitmap.Width; i++)
+            Parallel.For(0, bitmap.Width, i =>
             {
                 for (int j = 0; j < bitmap.Height; j++)
                 {
-                    bitmap[i, j] = (byte)(bitmap[i, j] < threshold ? 0: 255);
+                    bitmap[i, j] = (byte)(bitmap[i, j] < threshold ? 0 : 255);
                 }
-            }
+            });
         }
 
         private int[] CountGistogram(FastBitmap bitmap)

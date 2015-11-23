@@ -15,6 +15,7 @@ namespace face_direction_recognizer
             int[,] windowX = new int[,] { { -1, 0, 1 }, { -2, 0, 2 }, { -1, 0, 1 } };
             int[,] windowY = new int[,] { { 1, 2, 1 }, { 0, 0, 0 }, { -1, -2, -1 } };
             byte[,] buffer = new byte[width, height];
+            //double[,] angulars = new double[width, height];
 
             Parallel.For(1, width - 1, i =>
               {
@@ -32,18 +33,19 @@ namespace face_direction_recognizer
                           }
                       }
                       double new_val = Math.Sqrt(new_x * new_x + new_y * new_y);
+                      //angulars[i, j] = Math.Atan2(new_y, new_x);
                       if (new_val > 255) new_val = 255;
                       if (new_val < 0) new_val = 0;
                       buffer[i, j] = (byte)new_val;
                   }
               });
-            for (int i = 1; i < width - 1; i++)
+            Parallel.For(1, width - 1, i =>
             {
                 for (int j = 1; j < height - 1; j++)
                 {
-                   bitmap[i,j] = buffer[i, j];
+                    bitmap[i, j] = buffer[i, j];
                 }
-            }
+            });
         }
     }
 }

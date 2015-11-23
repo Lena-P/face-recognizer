@@ -8,6 +8,7 @@ namespace face_direction_recognizer
     class FastBitmap
     {
         private static ColorPalette _palette;
+        private int[,] _integralImage;
 
         static FastBitmap()
         {
@@ -65,6 +66,20 @@ namespace face_direction_recognizer
             _grayPixels = ToGrayscale(_bitmap);
             Height = _bitmap.Height;
             Width = _bitmap.Width;
+            _integralImage = ToIntegral(_bitmap);
+        }
+
+        private int[,] ToIntegral(Bitmap bitmap)
+        {
+            int[,] result = new int[Width, Height];
+            for (int x = 0; x < Width; x++)
+            {
+                for (int y = 0; y < Height; y++)
+                {
+                    
+                }
+            }
+            return result;
         }
 
         private byte[] ToGrayscale(Bitmap bitmap)

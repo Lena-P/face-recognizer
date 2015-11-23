@@ -3,6 +3,9 @@ using System.Windows.Forms;
 using AForge.Video.DirectShow;
 using AForge.Video;
 using System;
+using System.Threading.Tasks;
+using face_direction_recognizer.viola_jones;
+using System.Collections.Generic;
 
 namespace face_direction_recognizer
 {
@@ -10,10 +13,15 @@ namespace face_direction_recognizer
     {
         private VideoCaptureDevice videoSource;
         private IFilter[] filters = new IFilter[3];
+        private Detector detector;
+        private Detector eyeDetector;
+        private System.Drawing.Rectangle defaultRect;
         public Form1()
         {
             InitializeComponent();
             InitializeFilters();
+            detector = new Detector("haarcascade_frontalface_alt2.xml");
+            eyeDetector = new Detector("haarcascade_eye.xml");
             InitializeCapture();
         }
 
@@ -29,19 +37,44 @@ namespace face_direction_recognizer
             FilterInfoCollection videoDevices = new FilterInfoCollection(FilterCategory.VideoInputDevice);
             videoSource = new VideoCaptureDevice(videoDevices[0].MonikerString);
             videoSource.NewFrame += new NewFrameEventHandler(NewFrameHandler);
+            videoSource.VideoResolution = videoSource.VideoCapabilities[4];
+            defaultRect = new System.Drawing.Rectangle(0, 0, videoSource.VideoResolution.FrameSize.Width, videoSource.VideoResolution.FrameSize.Height);
             videoSource.Start();
         }
-        // найти лицо и зрачки
-        // найти лицо и натянуть текстуру или найти особые точки и посчитать их отношение
+        
         private void NewFrameHandler(object sender, NewFrameEventArgs eventArgs)
         {
             Bitmap bitmap = (Bitmap)eventArgs.Frame.Clone();
+            FastBitmap notModifiedBitmap = new FastBitmap(bitmap);
             FastBitmap fastBitmap = new FastBitmap(bitmap);
-            for (int i = 0; i < filters.Length; i++)
+            //for (int i = 0; i < filters.Length; i++)
+            //{
+            //    filters[0].DoFilter(fastBitmap);
+            //}
+            //Parallel.For(0, fastBitmap.Width, i =>
+            // {
+            //     for (int j = 0; j < fastBitmap.Height; j++)
+            //     {
+            //         int difference = notModifiedBitmap[i, j] - fastBitmap[i, j];
+            //         fastBitmap[i, j] = difference > 0 ? (byte)difference : (byte)0;
+            //     }
+            // });
+            List<System.Drawing.Rectangle> result = detector.getElements(fastBitmap, 1, 1.25f, 0.1f, 2, defaultRect);
+            foreach(System.Drawing.Rectangle rect in result)
             {
-                filters[i].DoFilter(fastBitmap);
+                System.Drawing.Rectangle nRect = rect;
+                nRect.Height /= 2;
+                List<System.Drawing.Rectangle> eyeResult = eyeDetector.getElements(fastBitmap, 1, 1.25f, 0.1f, 1, nRect);
+                using (Graphics g = Graphics.FromImage(bitmap))
+                {
+                    if (eyeResult.Count > 0) g.DrawRectangles(Pens.Blue, eyeResult.ToArray());
+                }
+            };
+            using (Graphics g = Graphics.FromImage(bitmap))
+            {
+                if (result.Count > 0) g.DrawRectangles(Pens.GreenYellow, result.ToArray());
             }
-            pictureBox1.Image = fastBitmap.GrayBitmap;
+            pictureBox1.Image = bitmap;
         }
 
         private void OnFormClosed(object sender, FormClosedEventArgs e)
