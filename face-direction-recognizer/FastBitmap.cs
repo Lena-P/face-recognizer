@@ -23,6 +23,11 @@ namespace face_direction_recognizer
         private Bitmap _bitmap;
         private byte[] _grayPixels;
 
+        public byte[] GrayPixels
+        {
+            get { return _grayPixels; }
+        }
+
         public int Height
         {
             get;
