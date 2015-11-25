@@ -15,6 +15,7 @@ namespace face_direction_recognizer
         private IFilter[] filters = new IFilter[3];
         private Detector detector;
         private Detector eyeDetector;
+        private PupilSearcher searcher;
         private System.Drawing.Rectangle defaultRect;
         public Form1()
         {
@@ -22,6 +23,7 @@ namespace face_direction_recognizer
             InitializeFilters();
             detector = new Detector("haarcascade_frontalface_alt2.xml");
             eyeDetector = new Detector("haarcascade_eye.xml");
+            searcher = new PupilSearcher();
             InitializeCapture();
         }
 
@@ -45,7 +47,7 @@ namespace face_direction_recognizer
         private void NewFrameHandler(object sender, NewFrameEventArgs eventArgs)
         {
             Bitmap bitmap = (Bitmap)eventArgs.Frame.Clone();
-            FastBitmap notModifiedBitmap = new FastBitmap(bitmap);
+            FastBitmap sobelBitmap = new FastBitmap(bitmap);
             FastBitmap fastBitmap = new FastBitmap(bitmap);
             //for (int i = 0; i < filters.Length; i++)
             //{
@@ -67,7 +69,17 @@ namespace face_direction_recognizer
                 List<System.Drawing.Rectangle> eyeResult = eyeDetector.getElements(fastBitmap, 1, 1.25f, 0.1f, 1, nRect);
                 using (Graphics g = Graphics.FromImage(bitmap))
                 {
-                    if (eyeResult.Count > 0) g.DrawRectangles(Pens.Blue, eyeResult.ToArray());
+                    if (eyeResult.Count > 1)
+                    {
+                        filters[1].DoFilter(sobelBitmap);
+                        SobelDetektor det = (SobelDetektor)filters[1];
+                        g.DrawRectangles(Pens.Blue, eyeResult.ToArray());
+                        foreach ( var eye in eyeResult)
+                        {
+                            System.Drawing.Rectangle pupil = searcher.FindPupil(sobelBitmap, eye, det.Angulars);
+                            g.DrawEllipse(Pens.Red, pupil);
+                        }
+                    }
                 }
             };
             using (Graphics g = Graphics.FromImage(bitmap))

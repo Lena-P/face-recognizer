@@ -8,6 +8,12 @@ namespace face_direction_recognizer
 {
     class SobelDetektor : IFilter
     {
+        public double[,] Angulars
+        {
+            get;
+            private set;
+        }
+
         public void DoFilter(FastBitmap bitmap)
         {
             int width = bitmap.Width;
@@ -15,7 +21,7 @@ namespace face_direction_recognizer
             int[,] windowX = new int[,] { { -1, 0, 1 }, { -2, 0, 2 }, { -1, 0, 1 } };
             int[,] windowY = new int[,] { { 1, 2, 1 }, { 0, 0, 0 }, { -1, -2, -1 } };
             byte[,] buffer = new byte[width, height];
-            //double[,] angulars = new double[width, height];
+            Angulars = new double[width, height];
 
             Parallel.For(1, width - 1, i =>
               {
@@ -33,7 +39,7 @@ namespace face_direction_recognizer
                           }
                       }
                       double new_val = Math.Sqrt(new_x * new_x + new_y * new_y);
-                      //angulars[i, j] = Math.Atan2(new_y, new_x);
+                      Angulars[i, j] = Math.Atan2(new_y, new_x);
                       if (new_val > 255) new_val = 255;
                       if (new_val < 0) new_val = 0;
                       buffer[i, j] = (byte)new_val;

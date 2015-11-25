@@ -71,6 +71,7 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="filters\SobelDetektor.cs" />
+    <Compile Include="PupilSearcher.cs" />
     <Compile Include="viola-jones\Detector.cs" />
     <Compile Include="viola-jones\Feature.cs" />
     <Compile Include="viola-jones\Integrator.cs" />
