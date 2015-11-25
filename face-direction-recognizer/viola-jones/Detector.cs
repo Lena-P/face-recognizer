@@ -116,12 +116,12 @@ namespace face_direction_recognizer.viola_jones
             for (float scale = baseScale; scale < maxScale; scale *= scale_inc)
             {
                 int step = (int)(scale * 24 * increment);
-                int size = (int)(scale * 24);
-                Parallel.For(rect.X, rect.X + width - size, i =>
+                int ultraSize = (int)(scale * 24);
+                Parallel.For(rect.X, rect.X + width - ultraSize, i =>
                {
                    if (i % step == 0)
                    {
-                       for (int j = rect.Y; j < rect.Y + height - size; j += step)
+                       for (int j = rect.Y; j < rect.Y + height - ultraSize; j += step)
                        {
                            bool pass = true;
                            int k = 0;
@@ -138,7 +138,7 @@ namespace face_direction_recognizer.viola_jones
                            }
                            if (pass)
                            {
-                               ret.Add(new System.Drawing.Rectangle(i, j, size, size));
+                               ret.Add(new System.Drawing.Rectangle(i, j, ultraSize, ultraSize));
                                 // return merge(ret, min_neighbors);
                             }
                        }
