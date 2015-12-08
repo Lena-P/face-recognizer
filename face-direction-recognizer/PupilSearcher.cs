@@ -9,9 +9,9 @@ namespace face_direction_recognizer
 {
     class PupilSearcher
     {
-        int matrixSize = 13;
-        int half = 6;
-        int[,] radialMask;
+        int matrixSize = 15;
+        int half = 7;
+        double[,] radialMask;
         double[,] gradMask;
         double[,,] cube;
         int maxRad;
@@ -24,29 +24,31 @@ namespace face_direction_recognizer
 
         void InitMatrixes()
         {
-            radialMask = new int[matrixSize, matrixSize];
+            radialMask = new double[matrixSize, matrixSize];
             gradMask = new double[matrixSize, matrixSize];
-            minRad = matrixSize;
-            maxRad = 0;
+            double min = matrixSize;
+            double max = 0;
             for (int i = 0; i < matrixSize; i++)
             {
                 for (int j = 0; j < matrixSize; j++)
                 {
                     radialMask[i, j] = (int)Math.Sqrt((i - half) * (i - half) + (j - half) * (j - half));
                     gradMask[i, j] = Math.Atan2(i-half, j-half);
-                    if (radialMask[i, j] > maxRad)
+                    if (radialMask[i, j] > max)
                     {
-                        maxRad = radialMask[i, j];
+                        max = radialMask[i, j];
                     }
                     else
                     {
-                        if (radialMask[i,j] < minRad)
+                        if (radialMask[i,j] < min)
                         {
-                            minRad = radialMask[i, j];
+                            min = radialMask[i, j];
                         }
                     }
                 }
             }
+            maxRad = (int)max;
+            minRad = (int)min;
 
         }
 
@@ -55,10 +57,10 @@ namespace face_direction_recognizer
             cube = new double[eye.Width, eye.Height, maxRad - minRad];
             double maxCubeval = 0;
             int maxi = 0, maxj = 0, maxr = 0;
-            Parallel.For(0, eye.Width, i =>
+            Parallel.For(0, eye.Width - (int)(0.5 * eye.Width), i =>
             //for (int i = 0; i < eye.Width; i++)
             {
-                  for (int j = 0; j < eye.Height; j++)
+                  for (int j = 0; j < eye.Height - 0.5 * eye.Height; j++)
                   {
                       for (int r = 0; r < maxRad - minRad; r++)
                       {
@@ -88,7 +90,7 @@ namespace face_direction_recognizer
                     int eyeX = eye.X + i - half + k;
                     int eyeY = eye.Y + j - half + l;
                     double difAng = angulars[eyeX, eyeY] - gradMask[k,l];
-                    result += bmp[eyeX, eyeY] * Math.Cos(difAng);
+                    result += bmp[eyeX, eyeY] * Math.Cos(difAng) * radialMask[k,l];
                 }
             }
             return result;

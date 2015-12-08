@@ -49,22 +49,18 @@ namespace face_direction_recognizer
         {
             Bitmap bitmap = (Bitmap)eventArgs.Frame.Clone();
             FastBitmap sobelBitmap = new FastBitmap(bitmap);
-            FastBitmap fastBitmap = new FastBitmap(bitmap);
-
+            FastBitmap fastBitmap = new FastBitmap(bitmap);            
+            Harries dummy = new Harries();
+            byte[] gray = fastBitmap.GrayPixels;
+            var ps = dummy.Corner(gray, fastBitmap.Width, fastBitmap.Height);
+            int r = 1;
+            var size = new Size(r, r);
+            foreach(Point p in ps)
             {
-                Harries dummy = new Harries();
-                byte[] gray = fastBitmap.GrayPixels;
-                var ps = dummy.Corner(gray, fastBitmap.Width, fastBitmap.Height);
-                int r = 3;
-                var size = new Size(r, r);
-                foreach(Point p in ps)
+                using (Graphics g = Graphics.FromImage(bitmap))
                 {
-                    using (Graphics g = Graphics.FromImage(bitmap))
-                    {
-                        g.DrawRectangle(Pens.GreenYellow, new System.Drawing.Rectangle(p, size));
-                    }
+                    g.DrawRectangle(Pens.Coral, new System.Drawing.Rectangle(p, size));
                 }
-                pictureBox1.Image = bitmap;
             }
 
             //for (int i = 0; i < filters.Length; i++)
